@@ -1,0 +1,1010 @@
+@import 'tailwindcss';
+
+@theme {
+  /* ══════════════════════════════════════════════════════════════════════
+     PORTWHIZZ FREIGHT FORWARDING — "DRAFT MARKS"
+     ══════════════════════════════════════════════════════════════════════
+     The previous theme was warm off-white paper. It read as a document, and
+     it landed on the exact palette every generated interface lands on —
+     cream ground, high-contrast type, one warm accent. The product is not a
+     document. It is the instrument a shipper reads to find out where forty
+     tonnes of steel is and what it will cost them by Friday.
+
+     So the ground is not paper: it is a mineral grey-green, the colour of
+     deck primer and machined steel, and it is deliberately a *surface*
+     rather than a page. Panels are near-white plates that sit ON that
+     ground with a crisp hairline and a hint of lift, the way an instrument
+     face sits in a bezel. That figure/ground separation is what stops a
+     dense operations screen reading as a flat wall of cards.
+
+     Colour is state and nothing else. Green is action and health, teal is a
+     route or a link, gold is attention, crimson is a live problem, violet
+     is an external party. Nothing is coloured to be pretty.
+
+     Contrast against the plate (#F8FAF9): text 15.4:1 · muted 7.2:1 ·
+     faint 4.6:1 · signal 5.4:1 · route 5.6:1 · amber 4.8:1 · critical
+     7.4:1. All pass AA at body size; faint is for meta, never prose.
+     ══════════════════════════════════════════════════════════════════════ */
+
+  /* ── Ground & surfaces ─────────────────────────────────────────────── */
+  --color-ink: #e2e8e6; /* the instrument face the plates sit on, not a fill */
+  --color-surface: #f8faf9;
+  --color-raised: #f8faf9;
+  --color-raised-2: #e3eae7; /* inset fills, table heads, chips */
+  --color-hairline: #c6d1cd;
+  --color-hairline-strong: #a9b7b2;
+
+  /* ── Signal palette — colour is state, never decoration ────────────── */
+  --color-signal: #0d6b4f; /* primary action · healthy                    */
+  --color-signal-dim: #cbe4da;
+  --color-route: #0a6570; /* route arcs · links · in transit              */
+  --color-route-dim: #c4dfe3;
+  --color-amber: #a96700; /* attention · cutoffs · validity expiry        */
+  --color-amber-dim: #f2dfbe;
+  --color-critical: #a81330; /* critical exception                       */
+  --color-critical-dim: #f2ccd3;
+  --color-violet: #574ba6; /* partner · external dependency               */
+  --color-violet-dim: #d8d4ee;
+
+  /* ── Type ──────────────────────────────────────────────────────────── */
+  --color-text: #101d1a; /* hull black — green-cast, never neutral */
+  --color-text-muted: #44544f;
+  --color-text-faint: #64746e;
+
+  /* Text that sits *on* a filled accent. */
+  --color-on-accent: #ffffff;
+
+  /* Three faces, three jobs. Archivo is signage — it sets plate headings and
+     the stencilled labels, and it is the reason a screen is recognisable at
+     a glance from across a room. Plex Sans carries prose because it was
+     drawn for institutional documents and stays legible at 13px. Plex Mono
+     carries every number: this product is mostly tabular data, and figures
+     that shift width mid-count are the fastest way to look unfinished. */
+  --font-display: var(--font-archivo), var(--font-plex-sans), system-ui, sans-serif;
+  --font-sans: var(--font-plex-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, 'SF Mono', monospace;
+
+  /* Ops screens are dense on purpose. */
+  --text-micro: 0.6875rem; /* 11px — chips, meta            */
+  --text-data: 0.8125rem; /* 13px — tables, data cells     */
+  --text-body: 0.875rem; /* 14px — body                   */
+  --text-panel: 0.9375rem; /* 15px — panel labels           */
+
+  --radius-panel: 14px;
+  --radius-card: 10px;
+  --radius-chip: 6px;
+
+  /* Motion budget — nothing hand-rolls a duration. */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --dur-fast: 180ms;
+  --dur-base: 240ms;
+  --dur-slow: 320ms;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   THE MATERIAL SYSTEM — ONE LIGHT, ONE GROUND, FOUR HEIGHTS
+   ══════════════════════════════════════════════════════════════════════════
+   Everything below this line exists because a card stops looking generated
+   the moment its depth is physically possible. Three rules, and every surface
+   in the product obeys all three:
+
+   1. ONE LIGHT SOURCE — top-centre, slightly in front. So every edge highlight
+      sits on the TOP edge of an object and every shadow falls BELOW it and a
+      hair to the right. Mixed light direction across a grid of cards is the
+      single loudest tell of machine-assembled UI, and it is the thing this
+      product had: some surfaces lit from above, some ringed evenly, some with
+      a highlight on all four sides. A ring of light on all four edges is not
+      a highlight, it is a glow, and nothing in a shipping office glows.
+
+   2. TWO SHADOWS, NEVER ONE. A *contact* shadow — 1px, tight, ~5% — welds the
+      object to the ground so it does not appear to hover. An *ambient* shadow
+      — large radius, heavily negative spread, 28–40% — is the height. One
+      shadow alone reads as a sticker; the pair reads as an object. The spread
+      is negative on purpose: it pulls the cast in under the object so the
+      shadow is smaller than the thing casting it, which is what a diffuse
+      overhead light actually does.
+
+   3. THE SHADOW IS MADE OF THE GROUND. This ground is a cool mineral green,
+      so every tint here is rgb(16 29 26 / …). A neutral grey or blue-grey
+      shadow laid over a green ground reads as dirt on the screen, not as
+      depth — a mistake that is invisible on one card and unmissable on twenty.
+
+   Elevation is therefore a SCALE, not a decision a component gets to make.
+   Ground → plate → raised plate → floating → modal. Five steps, each a fixed
+   pair of casts. A component that invents its own blur radius breaks the
+   illusion for every other component on the screen, which is why these are
+   custom properties and not a convention.
+
+   Declared unlayered so they resolve everywhere, including inside arbitrary
+   Tailwind values like `shadow-[var(--elev-2)]`.
+   ══════════════════════════════════════════════════════════════════════════ */
+:root {
+  /* The two faces of a machined plate: the milled top edge catching the light,
+     and the shaded underside of the same lip. This pair — and nothing else —
+     is what makes a surface read as having THICKNESS rather than being a
+     rectangle painted on the page. */
+  --edge: inset 0 1px 0 0 rgb(255 255 255 / 0.9), inset 0 -1px 0 0 rgb(16 29 26 / 0.05);
+
+  /* Contact + ambient, four heights. The x-offset grows with height because a
+     fixed overhead light throws a longer, more oblique cast the further an
+     object is off the ground. */
+  --cast-1:
+    0 1px 1px -0.5px rgb(16 29 26 / 0.05),
+    0 8px 20px -12px rgb(16 29 26 / 0.28);
+  --cast-2:
+    1px 2px 3px -1px rgb(16 29 26 / 0.06),
+    1px 16px 32px -16px rgb(16 29 26 / 0.34);
+  --cast-3:
+    2px 3px 6px -2px rgb(16 29 26 / 0.07),
+    2px 28px 54px -22px rgb(16 29 26 / 0.38);
+  --cast-4:
+    2px 4px 8px -2px rgb(16 29 26 / 0.08),
+    3px 44px 84px -28px rgb(16 29 26 / 0.4);
+
+  /* The scale itself. Face lighting + cast, so a surface only ever names a
+     height and is lit correctly for free. */
+  --elev-0: var(--edge); /* flush: a region OF a plate, not an object on it   */
+  --elev-1: var(--edge), var(--cast-1); /* a plate resting on the ground      */
+  --elev-2: var(--edge), var(--cast-2); /* the same plate, picked up 1px      */
+  --elev-3: var(--edge), var(--cast-3); /* popover · dropdown · drawer        */
+  --elev-4: var(--edge), var(--cast-4); /* modal, over a scrim                */
+
+  /* Recesses are the light run backwards: the shade falls at the TOP of the
+     channel (where the near wall blocks the ceiling light) and the far lip at
+     the bottom catches it. Get that inverted and the field looks embossed. */
+  --recess-1: inset 0 1px 2px 0 rgb(16 29 26 / 0.07), inset 0 -1px 0 0 rgb(255 255 255 / 0.7);
+  --recess-2: inset 0 2px 5px -1px rgb(16 29 26 / 0.12), inset 0 -1px 0 0 rgb(255 255 255 / 0.6);
+
+  /* The press. A control that only changes colour has not been pressed. */
+  --pressed: inset 0 2px 4px 0 rgb(16 29 26 / 0.16), inset 0 1px 1px 0 rgb(16 29 26 / 0.1);
+
+  /* The key light, made literal on a large OPAQUE fill: brighter at the top,
+     falling to a whisper of the ground colour at the bottom. One and a half
+     RGB units either way — it is doing the same job as the shadow, from the
+     other side, and you are meant to feel it rather than see it.
+
+     Deliberately not used on glass. On a translucent surface a white gradient
+     is an OPACITY ramp, not a light: a tall glass panel would end up visibly
+     denser at the top than at the bottom, which is a defect rather than a
+     material. Glass gets its light from its inset edges instead. */
+  --key-light: linear-gradient(
+    180deg,
+    rgb(255 255 255 / 0.32) 0%,
+    rgb(255 255 255 / 0) 46%,
+    rgb(16 29 26 / 0.016) 100%
+  );
+
+  /* Milled-plate faces for controls you press. */
+  --face-hi: #fdfffe;
+  --face-lo: #eef3f1;
+  --face-lo-pressed: #e6ecea;
+
+  /* ~3% surface noise, baked into the SVG rather than applied by opacity so it
+     can ride as a background layer instead of a pseudo-element — plates are
+     laid out by fourteen other modules and their ::after is not mine to take.
+     Large flat fills are the giveaway of vector-drawn UI; real painted metal
+     has tooth. */
+  --pw-noise: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='pwn'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23pwn)' opacity='0.032'/%3E%3C/svg%3E");
+}
+
+@layer base {
+  * {
+    border-color: var(--color-hairline);
+  }
+
+  html {
+    background: var(--color-ink);
+    color-scheme: light;
+
+    /* Smooth scrolling lives on the scrolling element, and until now nothing
+       here was the scrolling element — see the note on `body` below. */
+    scroll-behavior: smooth;
+    /* Anchored jumps must clear the sticky top bar, or the heading you asked
+       for lands underneath it. */
+    scroll-padding-top: 5rem;
+  }
+
+  body {
+    background: var(--color-ink);
+    color: var(--color-text);
+    font-family: var(--font-sans);
+    font-size: var(--text-body);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+
+    /* The page ground never scrolls sideways; wide content scrolls in its own
+       box. `clip`, NOT `hidden`, and the difference is the whole bug:
+       `overflow-x: hidden` on body makes the browser compute `overflow-y:
+       auto`, which promotes body to a scroll container and takes scrolling
+       away from the viewport. Three things break the moment that happens —
+       `scroll-behavior: smooth` on <html> stops applying, every
+       `position: sticky` descendant stops sticking, and framer-motion's
+       `useScroll` tracks a viewport that is no longer scrolling, which is why
+       the scroll-driven journey section sat frozen.
+       `clip` blocks sideways overflow without creating a scroll container. */
+    overflow-x: clip;
+  }
+
+  /* Every number in this product is tabular so digits never jitter mid-animation. */
+  .tnum,
+  table,
+  code,
+  kbd,
+  .font-mono {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: 'tnum' 1, 'ss01' 1;
+  }
+
+  ::selection {
+    background: color-mix(in oklab, var(--color-signal) 30%, transparent);
+    color: var(--color-text);
+  }
+
+  /* Focus is always visible — this product is operated by keyboard. */
+  :focus-visible {
+    outline: 2px solid var(--color-signal);
+    outline-offset: 2px;
+    border-radius: 3px;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-hairline-strong);
+    border-radius: 6px;
+    border: 3px solid transparent;
+    background-clip: content-box;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #9aaaa4;
+    background-clip: content-box;
+  }
+}
+
+@layer components {
+  /* ── The plate ────────────────────────────────────────────────────────
+     `.pw-panel` and `.pw-plate` are the same physical object and are cut from
+     one rule on purpose: they were drifting apart — one had the milled edge
+     and one did not, so two panels side by side were lit from two different
+     places. A plate is a near-white face at --elev-1 with a hairline, a milled
+     top edge, tooth on the fill and the key light running down it. */
+  .pw-panel,
+  .pw-plate {
+    position: relative;
+    background-color: var(--color-surface);
+    background-image: var(--key-light), var(--pw-noise);
+    border: 1px solid var(--color-hairline);
+    border-radius: var(--radius-panel);
+    box-shadow: var(--elev-1);
+  }
+
+  /* ── The sheet ────────────────────────────────────────────────────────
+     Flush to whatever it sits on: the milled edge only, no cast. That is the
+     entire difference and it is the right one — a Card inside a Panel is a
+     REGION of that plate, and a region that casts a shadow onto its own parent
+     is the kind of thing that makes a screen feel assembled rather than made.
+     Radius follows suit: a smaller box on the same surface. */
+  .pw-card {
+    position: relative;
+    background: var(--color-raised);
+    border: 1px solid var(--color-hairline);
+    border-radius: var(--radius-card);
+    box-shadow: var(--elev-0);
+  }
+
+  /* ── Things that float ────────────────────────────────────────────────
+     Menus, comboboxes, tooltips and the command palette all carry 11–13px
+     type, so they get glass at 96% — enough backdrop saturation and blur that
+     you can feel the page moving underneath, nowhere near enough transparency
+     to cost a single character of legibility. Legibility outranks the effect
+     every time; the effect is what you notice second. */
+  .pw-overlay {
+    background-color: rgb(248 250 249 / 0.96);
+    backdrop-filter: blur(24px) saturate(150%);
+    -webkit-backdrop-filter: blur(24px) saturate(150%);
+    border: 1px solid var(--color-hairline);
+    box-shadow: var(--elev-3);
+  }
+
+  /* ── Technical grid: the control-room texture ── */
+  .pw-grid-bg {
+    background-image:
+      linear-gradient(to right, rgb(16 29 26 / 0.05) 1px, transparent 1px),
+      linear-gradient(to bottom, rgb(16 29 26 / 0.05) 1px, transparent 1px);
+    background-size: 56px 56px;
+  }
+
+  .pw-grid-fine {
+    background-image:
+      linear-gradient(to right, rgb(16 29 26 / 0.04) 1px, transparent 1px),
+      linear-gradient(to bottom, rgb(16 29 26 / 0.04) 1px, transparent 1px);
+    background-size: 14px 14px;
+  }
+
+  /* The room light. Key from top-centre — the same direction every plate on
+     the page is lit from — and a warm bounce off the floor beneath it. The
+     bounce used to sit at 85% right, which put a second light in the room and
+     quietly argued with every shadow in the product. It is centred now, so the
+     whole page has one vertical light axis. */
+  .pw-vignette {
+    background:
+      radial-gradient(120% 80% at 50% -10%, rgb(13 107 79 / 0.05) 0%, transparent 60%),
+      radial-gradient(100% 55% at 50% 112%, rgb(169 103 0 / 0.04) 0%, transparent 60%);
+  }
+
+  /* 2% film grain, pure texture, never interactive. */
+  .pw-grain::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.02;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* Dialog scrim. Was written inline as `bg-ink/80`, which only dimmed
+     anything while the ground was dark — under this theme `ink` *is* the
+     page, so the scrim stopped dimming and dialogs floated on nothing. */
+  .pw-scrim {
+    /* Warm dark, not black: a neutral scrim over warm paper goes green. */
+    background: rgb(12 24 21 / 0.46);
+  }
+
+  /* Section eyebrow used across marketing + app. */
+  .pw-eyebrow {
+    font-family: var(--font-mono);
+    font-size: var(--text-micro);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-text-faint);
+  }
+
+  /* Hairline table shell — wide tables scroll inside their own box. */
+  .pw-table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--color-hairline);
+    border-radius: var(--radius-card);
+  }
+  .pw-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: var(--text-data);
+  }
+  .pw-table th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: var(--color-raised);
+    text-align: left;
+    font-weight: 500;
+    font-size: var(--text-micro);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-text-faint);
+    padding: 0.625rem 0.875rem;
+    border-bottom: 1px solid var(--color-hairline);
+    white-space: nowrap;
+  }
+  .pw-table td {
+    padding: 0.6875rem 0.875rem;
+    border-bottom: 1px solid color-mix(in oklab, var(--color-hairline) 60%, transparent);
+    color: var(--color-text);
+    vertical-align: middle;
+  }
+  .pw-table tbody tr:last-child td {
+    border-bottom: none;
+  }
+  .pw-table tbody tr {
+    transition: background var(--dur-fast) var(--ease-out-expo);
+  }
+  .pw-table tbody tr:hover {
+    background: rgb(16 29 26 / 0.03);
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   GLASS, TACTILE CONTROLS AND FOOTAGE
+   ══════════════════════════════════════════════════════════════════════════
+   Three material languages, three jobs, and the discipline of the assignment
+   is the whole point — glass, tactile and plate sprayed across every surface
+   is mush, and mush is exactly what reads as generated.
+
+     GLASS      only where you would physically see through to what is behind:
+                the header once it leaves the top of the page, the search panel
+                sitting on the harbour footage, overlays. On a flat section it
+                is an expensive way to draw a white box.
+     TACTILE    only for things you PRESS. Buttons, steppers, segments, tiles.
+     PLATE      the data surfaces, on the elevation scale above.
+   ══════════════════════════════════════════════════════════════════════════ */
+@layer components {
+  .pw-skeleton::after {
+    background: linear-gradient(90deg, transparent, rgb(16 29 26 / 0.05), transparent);
+  }
+  .pw-table th {
+    background: var(--color-raised-2);
+  }
+  .pw-table tbody tr:hover {
+    background: rgb(16 29 26 / 0.022);
+  }
+  ::selection {
+    background: color-mix(in oklab, var(--color-signal) 18%, transparent);
+    color: var(--color-text);
+  }
+
+  /* ── Glass ────────────────────────────────────────────────────────────
+     Reserved for surfaces that genuinely float over something you can see:
+     the header once it leaves the top of the page, the search panel over the
+     harbour footage, the floating shipment card.
+
+     What separates glass from a translucent div is the EDGE. Real glass has
+     thickness, so it has three lines, not one: a bright catch on the top
+     surface, a fainter one wrapped all the way round where the light grazes
+     the chamfer, and a shaded lip underneath. The saturation lift is not a
+     stylistic flourish either — a blur alone desaturates whatever is behind
+     it, and glass over a green harbour that comes out grey looks like a
+     smudge on the lens. */
+  .pw-glass {
+    background-color: rgb(248 250 249 / 0.72);
+    backdrop-filter: blur(20px) saturate(168%);
+    -webkit-backdrop-filter: blur(20px) saturate(168%);
+    border: 1px solid rgb(255 255 255 / 0.5);
+    box-shadow:
+      inset 0 1px 0 0 rgb(255 255 255 / 0.85),
+      inset 0 0 0 1px rgb(255 255 255 / 0.16),
+      inset 0 -1px 0 0 rgb(16 29 26 / 0.06),
+      var(--cast-3);
+  }
+
+  /* The search panel carries real form controls, and so does the drawer. Both
+     are far denser than decorative glass for one reason: you have to be able
+     to read a port name through it at 13px. Legibility first, effect second. */
+  .pw-glass-panel {
+    background-color: rgb(248 250 249 / 0.93);
+    backdrop-filter: blur(30px) saturate(172%);
+    -webkit-backdrop-filter: blur(30px) saturate(172%);
+    border: 1px solid rgb(255 255 255 / 0.72);
+    box-shadow:
+      inset 0 1px 0 0 rgb(255 255 255 / 0.95),
+      inset 0 0 0 1px rgb(255 255 255 / 0.2),
+      inset 0 -1px 0 0 rgb(16 29 26 / 0.05),
+      var(--cast-4);
+  }
+
+  /* ── Tactile controls ─────────────────────────────────────────────────
+     Modern skeuomorphism, which is a discipline and not a look: a hairline
+     top highlight that reads as a milled edge, a cast that reads as one
+     millimetre of lift, and a press that genuinely travels and turns its
+     shadow inward. No bevels, no gloss, no chrome, no 1998 gradients — the
+     gradient here spans four percent of luminance and its only job is to say
+     which way is up.
+
+     There is deliberately NO hover translate. `.pw-tactile` is worn by
+     framer-driven buttons that already animate y on hover, and two lifts
+     stacked is a control that leaps off the page. On hover the light and the
+     cast grow; on press the whole thing moves. */
+  .pw-tactile {
+    background-color: var(--face-lo);
+    background-image: linear-gradient(180deg, var(--face-hi) 0%, var(--face-lo) 100%);
+    border: 1px solid var(--color-hairline-strong);
+    box-shadow:
+      inset 0 1px 0 0 var(--face-hi),
+      var(--cast-1);
+    transition:
+      box-shadow var(--dur-fast) var(--ease-out-expo),
+      transform var(--dur-fast) var(--ease-out-expo),
+      border-color var(--dur-fast) var(--ease-out-expo),
+      background-color var(--dur-fast) var(--ease-out-expo);
+  }
+  .pw-tactile:hover {
+    border-color: color-mix(in oklab, var(--color-signal) 35%, var(--color-hairline-strong));
+    box-shadow:
+      inset 0 1px 0 0 var(--face-hi),
+      var(--cast-2);
+  }
+  /* The press: down a pixel, highlight gone, shadow turned inward and the
+     face darkened. All four together, or it reads as a colour change. */
+  .pw-tactile:active {
+    transform: translateY(1px);
+    background-image: linear-gradient(180deg, var(--face-lo) 0%, var(--face-lo-pressed) 100%);
+    box-shadow: var(--pressed);
+  }
+  .pw-tactile[data-selected='true'] {
+    border-color: color-mix(in oklab, var(--color-signal) 55%, transparent);
+    background-image: linear-gradient(180deg, var(--face-hi) 0%, #e8f3ee 100%);
+    box-shadow:
+      inset 0 1px 0 0 var(--face-hi),
+      0 0 0 3px color-mix(in oklab, var(--color-signal) 12%, transparent),
+      0 1px 1px -0.5px rgb(16 29 26 / 0.05),
+      0 8px 18px -10px rgb(13 107 79 / 0.45);
+  }
+  /* A selected control is already down. Pressing it again must not pop it up. */
+  .pw-tactile[data-selected='true']:active {
+    transform: translateY(1px);
+    box-shadow:
+      var(--pressed),
+      0 0 0 3px color-mix(in oklab, var(--color-signal) 12%, transparent);
+  }
+
+  /* ── Fields are holes, not chips ──────────────────────────────────────
+     An input is a channel milled into the plate: shade at the top lip where
+     the wall blocks the ceiling light, a catch on the far lip at the bottom.
+     Invert that pair and the field reads as embossed — raised type you cannot
+     type into. The focus ring sits outside the recess so it never competes
+     with the text. */
+  .pw-field {
+    background: var(--face-hi);
+    border: 1px solid var(--color-hairline);
+    box-shadow: var(--recess-1);
+    transition:
+      border-color var(--dur-fast) var(--ease-out-expo),
+      box-shadow var(--dur-fast) var(--ease-out-expo);
+  }
+  .pw-field:hover:not(:focus-within) {
+    border-color: var(--color-hairline-strong);
+  }
+  .pw-field:focus-within {
+    border-color: color-mix(in oklab, var(--color-signal) 55%, transparent);
+    box-shadow:
+      inset 0 1px 2px 0 rgb(16 29 26 / 0.05),
+      0 0 0 3px color-mix(in oklab, var(--color-signal) 14%, transparent);
+  }
+  /* An invalid field is still a recess — the state is the ring, not the hole. */
+  .pw-field[data-invalid='true'] {
+    border-color: color-mix(in oklab, var(--color-critical) 55%, transparent);
+    box-shadow:
+      var(--recess-1),
+      0 0 0 3px color-mix(in oklab, var(--color-critical) 12%, transparent);
+  }
+
+  /* Footage → page.
+     Two jobs, and they are different. The diagonal wash clears a quiet field
+     under the headline — a photograph of a container terminal is the busiest
+     possible backdrop for text, and no amount of shadow makes 16px body copy
+     survive a crane boom running through it. The vertical wash calms the band
+     the glass search panel straddles, so a 13px port name is read against a
+     quiet field rather than against a hull.
+
+     ── Why the clearing is this wide ─────────────────────────────────────
+     It was cut for a shorter headline. `FIRST_VIEW.heading` is three
+     sentences and sets to roughly 620px at the hero size, which is about
+     half the plate — so the wash stayed at full strength to 26% and had
+     already dropped to 62% where the second line ends, and the line landed
+     on the bow of the vessel at somewhere near 2:1. The clearing now holds
+     ~97% until 48% of the plate and does not begin to open until 58%, which
+     is past the end of the longest line. The right quarter of the frame is
+     still untouched footage: legibility is bought out of the part of the
+     picture the text sits on, not out of the vessel. */
+  .pw-footage-scrim {
+    background:
+      linear-gradient(
+        102deg,
+        rgb(226 232 230 / 0.985) 0%,
+        rgb(226 232 230 / 0.975) 36%,
+        rgb(226 232 230 / 0.94) 52%,
+        rgb(226 232 230 / 0.72) 62%,
+        rgb(226 232 230 / 0.3) 73%,
+        rgb(226 232 230 / 0.06) 84%,
+        rgb(226 232 230 / 0) 92%
+      ),
+      linear-gradient(
+        to bottom,
+        rgb(226 232 230 / 0.4) 0%,
+        rgb(226 232 230 / 0.1) 16%,
+        rgb(226 232 230 / 0) 46%,
+        rgb(226 232 230 / 0.16) 74%,
+        rgb(226 232 230 / 0.42) 100%
+      );
+  }
+
+  /* Below the hero's two-column point there is no room for a diagonal: the
+     copy spans the full width of the plate, so the wash runs top-to-bottom and
+     gives the footage back the band underneath it.
+
+     Measured in PIXELS rather than percent, and that is the fix. The block of
+     copy is a roughly fixed height — four lines of headline, five or six of
+     body, one control, about 450px — but the plate is not: it grows with the
+     copy on a narrow phone and is held open by a min-height on a wide one. The
+     percentage ramp this replaces opened from 93% to 62% across 40–58% of the
+     plate, which on a 360px screen is precisely where the supporting paragraph
+     sits, so the last two lines were read off a hull. A pixel ramp holds the
+     clearing to the bottom of the copy at every width and opens immediately
+     after it. The final layer lifts the very bottom again: the glass search
+     panel straddles that edge and its port names are 13px. */
+  @media (max-width: 1023px) {
+    .pw-footage-scrim {
+      background:
+        linear-gradient(
+          to bottom,
+          rgb(226 232 230 / 0.985) 0px,
+          rgb(226 232 230 / 0.98) 425px,
+          rgb(226 232 230 / 0.86) 475px,
+          rgb(226 232 230 / 0.4) 535px,
+          rgb(226 232 230 / 0.1) 100%
+        ),
+        linear-gradient(to top, rgb(226 232 230 / 0.3) 0px, rgb(226 232 230 / 0) 90px);
+    }
+  }
+
+  /* The scroll story's phone ramp, carried over verbatim and left in its
+     original position in the cascade so the journey section renders exactly as
+     it did. Note for whoever owns that section: this block sits BEFORE the
+     `.pw-footage-scrim-soft` rule below it, so at equal specificity the base
+     rule wins and this override is currently inert. Moving it changes how the
+     journey captions read on a phone, which is not this pass's call to make. */
+  @media (max-width: 768px) {
+    .pw-footage-scrim-soft {
+      background: linear-gradient(
+        to bottom,
+        rgb(226 232 230 / 0.95) 0%,
+        rgb(226 232 230 / 0.93) 40%,
+        rgb(226 232 230 / 0.62) 58%,
+        rgb(226 232 230 / 0.55) 72%,
+        rgb(226 232 230 / 0.88) 88%,
+        rgb(226 232 230 / 1) 98%
+      );
+    }
+  }
+
+  /* The scroll story clears a narrower text column than the hero does — the
+     footage is the subject there, not the backdrop, so the wash stops as
+     soon as the captions are safe. */
+  .pw-footage-scrim-soft {
+    background:
+      linear-gradient(
+        100deg,
+        rgb(226 232 230 / 0.97) 0%,
+        rgb(226 232 230 / 0.92) 22%,
+        rgb(226 232 230 / 0.62) 38%,
+        rgb(226 232 230 / 0.16) 54%,
+        rgb(226 232 230 / 0) 68%
+      ),
+      linear-gradient(to bottom, rgb(226 232 230 / 0.55) 0%, rgb(226 232 230 / 0) 16%, rgb(226 232 230 / 0) 82%, rgb(226 232 230 / 0.9) 100%);
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   THE SIGNATURE — PLATES, STENCILS AND THE INSTRUMENT RAIL
+   ══════════════════════════════════════════════════════════════════════════
+   Three devices carry the whole direction. They are used sparingly and they
+   each mean something; a plate that is applied to decoration rather than to
+   a real instrument reading is the fastest way back to a wall of cards.
+   ══════════════════════════════════════════════════════════════════════════ */
+@layer components {
+  /* `.pw-plate` is cut with `.pw-panel` at the top of this file — one object,
+     one rule, one light. What lives here is what a plate DOES.
+
+     ── The lift ───────────────────────────────────────────────────────────
+     Hover and press are not decoration on top of the material, they are part
+     of it. A plate picked up one pixel casts a shadow that is both larger and
+     softer, because the distance to the ground grew; pressed, it settles and
+     the cast tightens. That pair is the entire difference between a card and
+     a thing you could put your hand on.
+
+     Opt-in, because a plate is also used as the active marker behind nav items
+     and behind framer `layoutId` transforms — surfaces that must never move
+     under the cursor. */
+  .pw-lift {
+    transition:
+      transform var(--dur-fast) var(--ease-out-expo),
+      box-shadow var(--dur-base) var(--ease-out-expo),
+      border-color var(--dur-fast) var(--ease-out-expo);
+  }
+  .pw-lift:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--elev-2);
+  }
+  .pw-lift:active {
+    transform: translateY(0);
+    box-shadow: var(--elev-1);
+  }
+  /* A sheet is flush, so it lifts to a plate and no further. Skipping a step
+     would make a Card jump higher on hover than the Panel containing it. */
+  .pw-card.pw-lift:hover {
+    box-shadow: var(--elev-1);
+  }
+  .pw-card.pw-lift:active {
+    box-shadow: var(--elev-0);
+  }
+
+  /* A surface that IS a link or a button is, by definition, a thing you can
+     press — so it answers the cursor whether or not anyone remembered to add
+     `.pw-lift`. Scoped by element type rather than by class on purpose: every
+     card-shaped link already in the product (the port index, the lane tiles,
+     the document rows) inherits the behaviour without a single call site being
+     edited, and a plain `<div>` card, which is not pressable, correctly does
+     not move. */
+  a.pw-card,
+  button.pw-card,
+  a.pw-plate,
+  button.pw-plate,
+  a.pw-panel,
+  button.pw-panel {
+    transition:
+      transform var(--dur-fast) var(--ease-out-expo),
+      box-shadow var(--dur-base) var(--ease-out-expo),
+      border-color var(--dur-fast) var(--ease-out-expo);
+  }
+  a.pw-card:hover,
+  button.pw-card:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--elev-1);
+  }
+  a.pw-card:active,
+  button.pw-card:active {
+    transform: translateY(0);
+    box-shadow: var(--elev-0);
+  }
+  a.pw-plate:hover,
+  button.pw-plate:hover,
+  a.pw-panel:hover,
+  button.pw-panel:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--elev-2);
+  }
+  a.pw-plate:active,
+  button.pw-plate:active,
+  a.pw-panel:active,
+  button.pw-panel:active {
+    transform: translateY(0);
+    box-shadow: var(--elev-1);
+  }
+
+  /* The stencilled label. Painted-on identification, the way a berth number
+     or a container code is: condensed, wide-tracked, never sentence case.
+     It names the plate; it is not a heading and must not replace one. */
+  .pw-stencil {
+    font-family: var(--font-display);
+    font-size: 0.625rem;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--color-text-faint);
+    font-variation-settings: 'wdth' 88;
+  }
+
+  /* Plate headings — signage, set tight and wide. */
+  .pw-plate-title {
+    font-family: var(--font-display);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    color: var(--color-text);
+  }
+
+  /* The instrument rail: a recessed channel that live readings sit in. The
+     inset shadow is doing the work — a reading in a recess reads as measured
+     by the machine, a reading on a raised chip reads as typed in by hand.
+     Slightly deeper than a field, because a rail is milled through the plate
+     rather than into it. */
+  .pw-rail {
+    background: linear-gradient(180deg, var(--color-raised-2) 0%, color-mix(in oklab, var(--color-raised-2) 88%, var(--color-ink)) 100%);
+    border: 1px solid var(--color-hairline);
+    border-radius: var(--radius-card);
+    box-shadow: var(--recess-2);
+  }
+
+  /* ── Machined interior edges ──────────────────────────────────────────
+     A hairline drawn *inside* a plate has to be lit too, or it looks like a
+     line drawn on a picture of a plate. A groove is one dark pixel with one
+     bright pixel below it; a ridge is the reverse. Used to divide a plate into
+     regions without spending a second border. */
+  .pw-groove {
+    border-top: 1px solid rgb(16 29 26 / 0.07);
+    box-shadow: inset 0 1px 0 0 rgb(255 255 255 / 0.85);
+  }
+  .pw-groove-v {
+    border-left: 1px solid rgb(16 29 26 / 0.07);
+    box-shadow: inset 1px 0 0 0 rgb(255 255 255 / 0.7);
+  }
+  /* Same joint, cut along the bottom of an element: the lit pixel has to fall
+     OUTSIDE the box this time, because the light still comes from above. */
+  .pw-groove-b {
+    box-shadow: 0 1px 0 0 rgb(255 255 255 / 0.8);
+  }
+
+  /* A lamp, not a bullet. `currentColor` carries the state, the halo is what
+     makes a 6px indicator legible at a glance from across a desk, and the
+     inner highlight is the light source glinting off the top of the dome. */
+  .pw-lamp {
+    border-radius: 9999px;
+    background: currentColor;
+    box-shadow:
+      inset 0 1px 0 0 rgb(255 255 255 / 0.45),
+      0 0 0 3px color-mix(in oklab, currentColor 20%, transparent),
+      0 1px 2px -0.5px rgb(16 29 26 / 0.3);
+  }
+
+  /* A stud seated in a channel: the filled node on the progress rail. Same
+     dome, no halo — a run leg is finished, not live. */
+  .pw-stud {
+    border-radius: 9999px;
+    background: currentColor;
+    box-shadow:
+      inset 0 1px 0 0 rgb(255 255 255 / 0.4),
+      0 1px 1px -0.5px rgb(16 29 26 / 0.28);
+  }
+
+  /* An empty hole drilled in the plate: the node for a leg not yet run. Shade
+     at the top lip, catch at the bottom — the same inverted light as a field,
+     which is what stops it reading as a switched-off dot. */
+  .pw-socket {
+    border-radius: 9999px;
+    background: var(--color-raised-2);
+    box-shadow:
+      inset 0 1.5px 2px 0 rgb(16 29 26 / 0.22),
+      inset 0 -1px 0 0 rgb(255 255 255 / 0.6),
+      0 0 0 1px rgb(16 29 26 / 0.06);
+  }
+
+  /* A single reading inside the rail. Mono, tabular, and tracked so a
+     six-figure number and a countdown occupy the same rhythm. */
+  .pw-readout {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+    color: var(--color-text);
+  }
+
+  /* Hairline tick marks along a rail — draft marks. Purely structural: they
+     appear only where the rail is measuring something continuous. */
+  .pw-ticks {
+    background-image: repeating-linear-gradient(
+      to right,
+      rgb(16 29 26 / 0.16) 0px,
+      rgb(16 29 26 / 0.16) 1px,
+      transparent 1px,
+      transparent 8px
+    );
+  }
+}
+
+@layer utilities {
+  /* The scale, as classes, so a surface that is not a plate — a filled
+     button, a floating image, a chart tooltip — can still name a height
+     instead of inventing a blur radius. Utilities, so they beat the component
+     classes above and a caller can raise a `.pw-card` without a `!important`. */
+  .pw-elev-0 {
+    box-shadow: var(--elev-0);
+  }
+  .pw-elev-1 {
+    box-shadow: var(--elev-1);
+  }
+  .pw-elev-2 {
+    box-shadow: var(--elev-2);
+  }
+  .pw-elev-3 {
+    box-shadow: var(--elev-3);
+  }
+  .pw-elev-4 {
+    box-shadow: var(--elev-4);
+  }
+  .pw-recess {
+    box-shadow: var(--recess-1);
+  }
+  .pw-recess-deep {
+    box-shadow: var(--recess-2);
+  }
+
+  /* Tooth on a large fill that is not a plate. */
+  .pw-noise {
+    background-image: var(--pw-noise);
+  }
+
+  .pw-hairline-t {
+    border-top: 1px solid var(--color-hairline);
+  }
+  .pw-hairline-b {
+    border-bottom: 1px solid var(--color-hairline);
+  }
+  .pw-hairline-l {
+    border-left: 1px solid var(--color-hairline);
+  }
+  .pw-hairline-r {
+    border-right: 1px solid var(--color-hairline);
+  }
+
+  /* Text that must never break a shipment/container id across lines. */
+  .pw-id {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   REDUCED MOTION — the globe, particles and pulses all stop here.
+   Framer Motion is separately gated in JS via useReducedMotion(); this is
+   the belt-and-braces CSS half for anything animated in stylesheet land.
+   ══════════════════════════════════════════════════════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* Zeroing the duration is not enough for anything that MOVES: a 1px lift
+     with a 0ms transition is still a 1px jump, and a grid of stat plates
+     twitching under the pointer is precisely what someone with vestibular
+     sensitivity asked us not to do. The shadow still grows, so the surface
+     still answers the cursor — it just stays put. */
+  .pw-lift:hover,
+  .pw-lift:active,
+  .pw-tactile:active,
+  .pw-tactile[data-selected='true']:active,
+  a.pw-card:hover,
+  button.pw-card:hover,
+  a.pw-card:active,
+  button.pw-card:active,
+  a.pw-plate:hover,
+  button.pw-plate:hover,
+  a.pw-plate:active,
+  button.pw-plate:active,
+  a.pw-panel:hover,
+  button.pw-panel:hover,
+  a.pw-panel:active,
+  button.pw-panel:active {
+    transform: none;
+  }
+}
+
+/* Port node pulse — the one intentional loop in the product. */
+@keyframes pw-pulse {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.9;
+    transform: scale(1.9);
+  }
+}
+.pw-pulse {
+  animation: pw-pulse 4s var(--ease-out-expo) infinite;
+}
+
+/* Route draw used by the SVG lane previews. */
+@keyframes pw-dash {
+  to {
+    stroke-dashoffset: -24;
+  }
+}
+.pw-dash {
+  animation: pw-dash 1.4s linear infinite;
+}
+
+@keyframes pw-shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+/* The skeleton is painted at the plate's own face value and carries the plate's
+   milled edge, because it is standing in for a plate. Get the value wrong and
+   every hydration gate in the product flashes a different grey the instant
+   persisted state lands — twenty small flickers that read as a page that has
+   not finished being built. */
+.pw-skeleton {
+  position: relative;
+  overflow: hidden;
+  background-color: var(--color-raised);
+  background-image: var(--pw-noise);
+  box-shadow: var(--elev-0);
+}
+.pw-skeleton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, rgb(16 29 26 / 0.06), transparent);
+  animation: pw-shimmer 1.6s infinite;
+}
